@@ -5,6 +5,8 @@ import os
 from injector import Injector
 from dotenv import load_dotenv
 
+from perplexityapi.client.perplexity_client import PerplexityClient
+
 
 class DefaultContainer:
     injector = None
@@ -39,15 +41,19 @@ class DefaultContainer:
         self.log_dir = os.path.join(self.var_dir, 'log')
         os.makedirs(self.log_dir, exist_ok=True)
         self.app_log_path = os.path.join(self.log_dir, 'app.log')
+        self.session_dir = os.path.join(self.var_dir, 'session')
+        os.makedirs(self.session_dir, exist_ok=True)
 
     def _init_environment_variables(self):
         self.pandoc_executable = os.environ.get('PANDOC_EXECUTABLE', 'pandoc')
         self.api_host = os.environ.get('API_HOST', '0.0.0.0')
         self.api_port = int(os.environ.get('API_PORT', '8000'))
+        self.session_dir_env = os.environ.get('SESSION_DIR', 'var/session')
 
     def _init_logging(self):
         logging.basicConfig(filename=self.app_log_path, level=logging.INFO, filemode='a', format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
 
     def _init_bindings(self):
-        # self.injector.binder.bind(PostDirVariable, PostDirVariable(self.post_dir))
-        pass
+        # Bind PerplexityClient with session_dir
+        perplexity_client = PerplexityClient(self.session_dir)
+        self.injector.binder.bind(PerplexityClient, to=perplexity_client)
