@@ -11,9 +11,10 @@ from perplexityapi.model.perplexity_response import PerplexityResponse
 class PerplexityClient:
 
     @inject
-    def __init__(self, session_dir: str):
+    def __init__(self, session_dir: str, headless: bool = False):
         self.session_dir = session_dir
         self.storage_state_path = os.path.join(session_dir, "state.json")
+        self.headless = headless
 
     async def login(self):
         """
@@ -47,7 +48,7 @@ class PerplexityClient:
         Returns:
             The complete response content from Perplexity
         """
-        async with AsyncCamoufox() as browser:
+        async with AsyncCamoufox(headless=self.headless) as browser:
             # Load storage state if exists
             context_options = {}
             if os.path.exists(self.storage_state_path):

@@ -49,11 +49,12 @@ class DefaultContainer:
         self.api_host = os.environ.get('API_HOST', '0.0.0.0')
         self.api_port = int(os.environ.get('API_PORT', '8000'))
         self.session_dir_env = os.environ.get('SESSION_DIR', 'var/session')
+        self.headless = os.environ.get('HEADLESS', 'false').lower() == 'true'
 
     def _init_logging(self):
         logging.basicConfig(filename=self.app_log_path, level=logging.INFO, filemode='a', format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
 
     def _init_bindings(self):
-        # Bind PerplexityClient with session_dir
-        perplexity_client = PerplexityClient(self.session_dir)
+        # Bind PerplexityClient with session_dir and headless
+        perplexity_client = PerplexityClient(self.session_dir, self.headless)
         self.injector.binder.bind(PerplexityClient, to=perplexity_client)
